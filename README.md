@@ -86,3 +86,9 @@ projeto-token/
 ## 💰 Custos (testnet)
 
 O deploy consumiu cerca de **1.279.400 de gas** (~0,0042 SepoliaETH). As operações de transferência, mint e burn têm custo bem menor, por não publicarem novo bytecode.
+
+---
+
+## 🎥 Demonstração
+
+- **Vídeo:** https://youtu.be/FOFYRYMh1Qw
