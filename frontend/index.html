@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CampusCoin · Painel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E1322;        /* fundo profundo */
+    --ink-2:#151B2E;      /* superfície */
+    --card:#1B2238;       /* cartões */
+    --line:#2A3350;       /* linhas/bordas */
+    --gold:#E8B84B;       /* acento moeda */
+    --gold-soft:#3a3320;  /* fundo do acento */
+    --text:#EAEDF6;
+    --muted:#8A93AD;
+    --green:#5BD6A0;
+    --red:#F2718A;
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:"Inter",system-ui,sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(900px 500px at 85% -10%, rgba(232,184,75,.10), transparent 60%),
+      radial-gradient(700px 500px at -10% 110%, rgba(91,214,160,.06), transparent 55%),
+      var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:840px;margin:0 auto;padding:28px 20px 64px}
+
+  /* ---- topo ---- */
+  header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:30px}
+  .brand{display:flex;align-items:center;gap:14px}
+  .coin{
+    width:46px;height:46px;border-radius:50%;flex:none;
+    background:radial-gradient(circle at 32% 28%, #F6D479, var(--gold) 55%, #B98A1E);
+    display:grid;place-items:center;
+    font-family:"Space Grotesk";font-weight:700;color:#3a2c06;font-size:20px;
+    box-shadow:0 6px 22px rgba(232,184,75,.28), inset 0 0 0 2px rgba(255,255,255,.25);
+  }
+  .brand h1{font-family:"Space Grotesk";font-size:21px;margin:0;letter-spacing:-.01em}
+  .brand p{margin:2px 0 0;color:var(--muted);font-size:13px}
+
+  .btn{
+    font-family:"Space Grotesk";font-weight:600;font-size:14px;
+    border:none;border-radius:11px;padding:11px 18px;cursor:pointer;
+    background:var(--gold);color:#2a2006;transition:transform .12s ease,filter .12s ease;
+  }
+  .btn:hover{filter:brightness(1.06)}
+  .btn:active{transform:translateY(1px)}
+  .btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
+  .btn.ghost:hover{border-color:var(--gold)}
+
+  .pill{
+    display:none;align-items:center;gap:9px;
+    background:var(--ink-2);border:1px solid var(--line);border-radius:11px;
+    padding:9px 13px;font-family:"JetBrains Mono";font-size:13px;
+  }
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+
+  /* ---- aviso de rede ---- */
+  .alert{
+    display:none;margin-bottom:22px;padding:13px 16px;border-radius:12px;
+    background:rgba(242,113,138,.10);border:1px solid rgba(242,113,138,.35);
+    color:#ffd2dc;font-size:14px;align-items:center;justify-content:space-between;gap:12px;
+  }
+
+  /* ---- estatísticas ---- */
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+  .stat .label{color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+  .stat .value{font-family:"Space Grotesk";font-weight:700;font-size:26px;margin-top:8px;word-break:break-word}
+  .stat.accent .value{color:var(--gold)}
+  .stat .sub{color:var(--muted);font-size:12px;margin-top:4px;font-family:"JetBrains Mono"}
+
+  /* ---- cartões de ação ---- */
+  .grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+  .panel h2{font-family:"Space Grotesk";font-size:15px;margin:0 0 4px;display:flex;align-items:center;gap:9px}
+  .panel .hint{color:var(--muted);font-size:13px;margin:0 0 16px}
+  .tag{font-family:"JetBrains Mono";font-size:10px;padding:3px 7px;border-radius:6px;background:var(--gold-soft);color:var(--gold);letter-spacing:.04em}
+  .tag.owner{background:rgba(91,214,160,.12);color:var(--green)}
+
+  label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px;letter-spacing:.03em}
+  input{
+    width:100%;background:var(--ink-2);border:1px solid var(--line);border-radius:10px;
+    color:var(--text);padding:12px 14px;font-family:"JetBrains Mono";font-size:14px;outline:none;
+    transition:border-color .12s ease;
+  }
+  input:focus{border-color:var(--gold)}
+  .row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .row > div{flex:1 1 180px}
+  .actions{display:flex;gap:10px;flex-wrap:wrap}
+
+  .owner-zone{margin-top:14px}
+  .owner-zone[hidden]{display:none}
+
+  /* ---- toast ---- */
+  #toast{
+    position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);
+    background:var(--ink-2);border:1px solid var(--line);border-radius:12px;
+    padding:13px 18px;font-size:14px;max-width:90vw;opacity:0;pointer-events:none;
+    transition:opacity .2s ease,transform .2s ease;box-shadow:0 12px 40px rgba(0,0,0,.4);
+  }
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  #toast.ok{border-color:rgba(91,214,160,.5)}
+  #toast.err{border-color:rgba(242,113,138,.5)}
+
+  footer{text-align:center;color:var(--muted);font-size:12px;margin-top:34px;font-family:"JetBrains Mono"}
+  footer a{color:var(--muted)}
+
+  @media (max-width:560px){
+    .stats{grid-template-columns:1fr}
+    header{flex-direction:column;align-items:flex-start}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="coin">C</div>
+      <div>
+        <h1>CampusCoin</h1>
+        <p>Painel do token · rede Sepolia</p>
+      </div>
+    </div>
+    <button id="btnConnect" class="btn">Conectar MetaMask</button>
+    <div id="account" class="pill"><span class="dot"></span><span id="accountText">—</span></div>
+  </header>
+
+  <div id="netAlert" class="alert">
+    <span>Sua carteira não está na rede Sepolia.</span>
+    <button id="btnSwitch" class="btn ghost">Trocar para Sepolia</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat accent">
+      <div class="label">Seu saldo</div>
+      <div class="value" id="balance">—</div>
+      <div class="sub" id="balanceSym"></div>
+    </div>
+    <div class="stat">
+      <div class="label">Supply total</div>
+      <div class="value" id="supply">—</div>
+      <div class="sub" id="supplySym"></div>
+    </div>
+    <div class="stat">
+      <div class="label">Token</div>
+      <div class="value" id="tokenName">—</div>
+      <div class="sub" id="tokenRole"></div>
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <div class="panel">
+      <h2>Transferir tokens</h2>
+      <p class="hint">Envie tokens para qualquer endereço da rede.</p>
+      <div class="row">
+        <div>
+          <label>Endereço de destino</label>
+          <input id="toAddr" placeholder="0x...">
+        </div>
+        <div>
+          <label>Quantidade</label>
+          <input id="toAmount" placeholder="ex.: 100">
+        </div>
+      </div>
+      <div class="actions">
+        <button id="btnTransfer" class="btn" disabled>Transferir</button>
+        <button id="btnRefresh" class="btn ghost" disabled>Atualizar saldo</button>
+      </div>
+    </div>
+
+    <div class="owner-zone" id="ownerZone" hidden>
+      <div class="panel">
+        <h2>Mint <span class="tag owner">só dono</span></h2>
+        <p class="hint">Cria novos tokens. A quantidade é em unidades inteiras (ex.: 500 = 500 tokens).</p>
+        <div class="row">
+          <div>
+            <label>Para o endereço</label>
+            <input id="mintAddr" placeholder="0x...">
+          </div>
+          <div>
+            <label>Quantidade (inteiro)</label>
+            <input id="mintAmount" placeholder="ex.: 500">
+          </div>
+        </div>
+        <div class="actions"><button id="btnMint" class="btn">Emitir tokens</button></div>
+      </div>
+
+      <div class="panel" style="margin-top:14px">
+        <h2>Blacklist <span class="tag owner">só dono</span></h2>
+        <p class="hint">Bloqueia ou libera um endereço de enviar e receber tokens.</p>
+        <div class="row">
+          <div>
+            <label>Endereço</label>
+            <input id="blAddr" placeholder="0x...">
+          </div>
+        </div>
+        <div class="actions">
+          <button id="btnBlock" class="btn">Bloquear</button>
+          <button id="btnUnblock" class="btn ghost">Liberar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Burn <span class="tag">queima</span></h2>
+      <p class="hint">Destrói parte dos seus próprios tokens, reduzindo o supply.</p>
+      <div class="row">
+        <div>
+          <label>Quantidade a queimar</label>
+          <input id="burnAmount" placeholder="ex.: 50">
+        </div>
+      </div>
+      <div class="actions"><button id="btnBurn" class="btn" disabled>Queimar tokens</button></div>
+    </div>
+
+  </div>
+
+  <footer>
+    Contrato:
+    <a id="contractLink" target="_blank" rel="noopener">0x4D8feea3…0E17a</a>
+  </footer>
+</div>
+
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.0/dist/ethers.umd.min.js"></script>
+<script>
+  // ====== CONFIG — endereço do seu contrato na Sepolia ======
+  const CONTRATO = "0x4D8feea345cc1482456008B26453282D6cb0E17a";
+  const SEPOLIA_HEX = "0xaa36a7"; // chainId 11155111
+  const ABI = [
+    "function name() view returns (string)",
+    "function symbol() view returns (string)",
+    "function decimals() view returns (uint8)",
+    "function totalSupply() view returns (uint256)",
+    "function balanceOf(address) view returns (uint256)",
+    "function owner() view returns (address)",
+    "function transfer(address,uint256) returns (bool)",
+    "function mint(address,uint256)",
+    "function burn(uint256)",
+    "function definirBlacklist(address,bool)"
+  ];
+
+  document.getElementById("contractLink").href =
+    "https://sepolia.etherscan.io/address/" + CONTRATO;
+
+  let provider, signer, contract, account, decimals = 18, symbol = "CAMP";
+
+  const $ = (id) => document.getElementById(id);
+  const toast = (msg, type="") => {
+    const t = $("toast");
+    t.textContent = msg; t.className = "show " + type;
+    clearTimeout(t._t); t._t = setTimeout(() => t.className = "", 4200);
+  };
+  const short = (a) => a.slice(0,6) + "…" + a.slice(-4);
+
+  async function connect(){
+    if(!window.ethereum){ toast("MetaMask não encontrado. Instale a extensão.","err"); return; }
+    try{
+      provider = new ethers.BrowserProvider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      signer = await provider.getSigner();
+      account = await signer.getAddress();
+      contract = new ethers.Contract(CONTRATO, ABI, signer);
+
+      $("btnConnect").style.display = "none";
+      $("account").style.display = "flex";
+      $("accountText").textContent = short(account);
+      ["btnTransfer","btnRefresh","btnBurn"].forEach(id => $(id).disabled = false);
+
+      await checkNetwork();
+      await loadData();
+    }catch(e){ toast("Conexão cancelada.","err"); }
+  }
+
+  async function checkNetwork(){
+    const net = await provider.getNetwork();
+    const wrong = net.chainId !== 11155111n;
+    $("netAlert").style.display = wrong ? "flex" : "none";
+    return !wrong;
+  }
+
+  async function switchNetwork(){
+    try{
+      await window.ethereum.request({
+        method:"wallet_switchEthereumChain",
+        params:[{ chainId: SEPOLIA_HEX }]
+      });
+      location.reload();
+    }catch(e){ toast("Não foi possível trocar de rede.","err"); }
+  }
+
+  async function loadData(){
+    try{
+      const [name, sym, dec] = await Promise.all([
+        contract.name(), contract.symbol(), contract.decimals()
+      ]);
+      symbol = sym; decimals = Number(dec);
+      $("tokenName").textContent = name;
+      $("balanceSym").textContent = symbol;
+      $("supplySym").textContent = symbol;
+
+      const [bal, sup, owner] = await Promise.all([
+        contract.balanceOf(account), contract.totalSupply(), contract.owner()
+      ]);
+      $("balance").textContent = fmt(ethers.formatUnits(bal, decimals));
+      $("supply").textContent  = fmt(ethers.formatUnits(sup, decimals));
+
+      const isOwner = owner.toLowerCase() === account.toLowerCase();
+      $("tokenRole").textContent = isOwner ? "Você é o dono" : "Você é holder";
+      $("ownerZone").hidden = !isOwner;
+    }catch(e){
+      toast("Falha ao ler o contrato. Confira a rede e o endereço.","err");
+    }
+  }
+
+  const fmt = (s) => {
+    const n = Number(s);
+    return n >= 1000 ? n.toLocaleString("pt-BR",{maximumFractionDigits:2}) : s;
+  };
+
+  // envia uma transação e trata erros de forma amigável
+  async function send(fn, okMsg){
+    try{
+      toast("Confirme no MetaMask…");
+      const tx = await fn();
+      toast("Transação enviada, aguardando confirmação…");
+      await tx.wait();
+      toast(okMsg, "ok");
+      await loadData();
+    }catch(e){
+      const reason = e?.reason || e?.shortMessage || "Transação rejeitada ou revertida.";
+      toast(reason, "err");
+    }
+  }
+
+  // ---- ações ----
+  $("btnConnect").onclick = connect;
+  $("btnSwitch").onclick  = switchNetwork;
+  $("btnRefresh").onclick = loadData;
+
+  $("btnTransfer").onclick = () => {
+    const to = $("toAddr").value.trim();
+    const amt = $("toAmount").value.trim();
+    if(!ethers.isAddress(to)) return toast("Endereço de destino inválido.","err");
+    if(!amt || Number(amt) <= 0) return toast("Informe uma quantidade válida.","err");
+    send(() => contract.transfer(to, ethers.parseUnits(amt, decimals)), `Enviado ${amt} ${symbol}.`);
+  };
+
+  $("btnBurn").onclick = () => {
+    const amt = $("burnAmount").value.trim();
+    if(!amt || Number(amt) <= 0) return toast("Informe uma quantidade válida.","err");
+    send(() => contract.burn(ethers.parseUnits(amt, decimals)), `Queimado ${amt} ${symbol}.`);
+  };
+
+  // mint do contrato recebe a quantidade INTEIRA (multiplica por decimals internamente)
+  $("btnMint").onclick = () => {
+    const to = $("mintAddr").value.trim();
+    const amt = $("mintAmount").value.trim();
+    if(!ethers.isAddress(to)) return toast("Endereço inválido.","err");
+    if(!/^\d+$/.test(amt) || Number(amt) <= 0) return toast("Use um número inteiro (ex.: 500).","err");
+    send(() => contract.mint(to, BigInt(amt)), `Emitido ${amt} ${symbol}.`);
+  };
+
+  $("btnBlock").onclick = () => {
+    const a = $("blAddr").value.trim();
+    if(!ethers.isAddress(a)) return toast("Endereço inválido.","err");
+    send(() => contract.definirBlacklist(a, true), "Endereço bloqueado.");
+  };
+  $("btnUnblock").onclick = () => {
+    const a = $("blAddr").value.trim();
+    if(!ethers.isAddress(a)) return toast("Endereço inválido.","err");
+    send(() => contract.definirBlacklist(a, false), "Endereço liberado.");
+  };
+
+  // reage a troca de conta/rede no MetaMask
+  if(window.ethereum){
+    window.ethereum.on("accountsChanged", () => location.reload());
+    window.ethereum.on("chainChanged", () => location.reload());
+  }
+</script>
+</body>
+</html>
